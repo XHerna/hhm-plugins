@@ -1,0 +1,247 @@
+geo = {"code": "eu", "lat": 52.5192, "lon": 13.4061}
+var room = HBInit({ roomName: "FeedMe 3vs3 everyone welcome", maxPlayers: 9, playerName : ">}(o__o){<", public : true, geo});
+room.setDefaultStadium("Big");
+room.setScoreLimit(3);
+room.setTimeLimit(3);
+room.setTeamsLock(true);
+var adminpw = "!gandalf"; //change to whatever desired
+const afkTimeout = 20000; //time until afk-kick in ms
+const votekickTimeout = 30000; //time until votekick-proposal runs out in ms
+var restart = false;
+var afkCheck = {}; //saves afk time for each player in the game
+var votekickTimes = {}; //saves time for each votekick-proposal until it runs out
+var votekickCount = {}; //saves a list of players who voted for the kick
+var subbedIns = []; //players who got subbed in while game was running get prefered
+
+/*
+    resets the teams. takes one player of each team at a time, so that teams get mixed through.
+*/
+function resetTeams() {
+    const [spects, red, blue] = getPlayerListByTeam();
+    for (i = 0; i < Math.max(red.length, blue.length); i++){
+        if (i < red.length) {
+            room.setPlayerTeam(red[i].id, 0);
+        }
+        if (i < blue.length) {
+            room.setPlayerTeam(blue[i].id, 0);
+        }
+    }
+}
+/*
+function resetTeams() {
+    players = room.getPlayerList();
+    for (i = 0; i < players.length; i++){
+        if(players[i].team != 0) {
+            room.setPlayerTeam(players[i].id, 0);
+        }
+    }
+
+    //  gut für WS, schlecht für random teams
+
+}
+*/
+
+/*
+    filters each team from the playerlist.
+*/
+function getPlayerListByTeam() {
+  const players = room.getPlayerList();
+  const spects = players.filter(p => p.team === 0);
+  const red = players.filter(p => p.team === 1);
+  const blue = players.filter(p => p.team === 2);
+  return [spects, red, blue];
+}
+
+/*
+    sets the Teams for the next Game and starts the game.
+*/
+function updateTeams() {
+    playerList = room.getPlayerList();
+    var playerNumber = playerList.length - 1;
+    playerList = playerList.filter(function(el) {
+        return (subbedIns.indexOf(el) < 0);
+    });
+    if(playerNumber >= 6) {
+        playerNumber = 6;
+        room.setDefaultStadium("Big"); //big if 3vs3 is possible
+    } else {
+        room.setDefaultStadium("Classic"); //classic if not
+        if(playerNumber % 2) {
+            playerNumber--; //creates even number of players to be distributed on both teams
+        }
+    }
+    for (i = 0; i < subbedIns.length; i++) {
+        if(i <= (playerNumber/2)) {
+            room.setPlayerTeam(subbedIns[i].id, 1); //prefers players who got subbed in the match before.
+        } else {
+            room.setPlayerTeam(subbedIns[i].id, 2);
+        }
+    }
+    for (i = 1; i < playerNumber+1-subbedIns.length; i++) {
+        if(i <= ((playerNumber/2)-subbedIns.length)) {
+            room.setPlayerTeam(playerList[i].id, 1); //puts first half of players in red team, second in blue team
+        } else {
+            room.setPlayerTeam(playerList[i].id, 2);
+        }
+    }
+    if (playerNumber > 1) {
+      room.startGame();
+    }
+}
+
+function sendWelcomeMessage(player) {
+    room.sendChat("Welcome " + player.name + "! FeedMe Discord: https://discord.gg/32MyWPP. Type \"votekick playername\" if someone doesn't behave.");
+}
+
+function kickInactivePlayer(player) {
+    room.kickPlayer(player.id, "afk, rejoin when back");
+}
+
+/*
+    starts afk-Timer for all players.
+*/
+function initializeAfkCheck() {
+    players = room.getPlayerList();
+    for (i = 1; i < players.length; i++) {
+        if(players[i].team != 0) {
+            afkCheck[players[i].id] = setTimeout(kickInactivePlayer, afkTimeout, players[i]);
+        }
+    }
+}
+
+/*
+    empties list of players who voted for kick for certain player.
+*/
+function votekickRemove(player) {
+    votekickCount[player.id] = []
+}
+
+/*
+    kicks player if more than 50% of the players voted for it.
+*/
+function votekickCheck(player) {
+    if (votekickCount[player.id].length*2 >= room.getPlayerList().length) {
+        room.kickPlayer(player.id, "votekick", false);
+    } else {
+    room.sendChat("Votekick count for " + player.name + " is: " + votekickCount[player.id].length)
+    }
+}
+
+room.onPlayerChat = function(player, message) {
+    /*if(message == "p") {
+        room.pauseGame(true);
+        //when to unstop game?
+        //let player sub himself?
+    }*/
+    if(message == adminpw) {
+        room.setPlayerAdmin(player.id, true);
+        return false;
+    }
+    if(message == "clearBans") {
+        if(player.admin == true){
+            room.clearBans();
+        }
+    }
+    if(message.startsWith("votekick")) {
+        playerFound = false;
+        players = room.getPlayerList();
+        for (i = 1; i < players.length; i++) {
+            if (message == ("votekick " + players[i].name)) {
+                playerFound = true;
+                if(votekickCount[players[i].id].indexOf(players[i]) == -1) {
+                    votekickCount[players[i].id].push(player)
+                }
+                votekickTimes[players[i].id] = setTimeout(votekickRemove, votekickTimeout, players[i]);
+                votekickCheck(players[i]);
+            }
+        }
+        if(playerFound == false) {
+            players = room.getPlayerList();
+            playersString = "";
+            for (i = 1; i < players.length; i++) {
+                playersString = playersString + players[i].name + " ";
+            }
+            room.sendChat("Who should be kicked?" + playersString);
+        }
+    }
+
+}
+
+/*
+    like this the teams dont get updated before the teams are completely reset.
+*/
+room.onPlayerTeamChange = function() {
+    if (!room.getScores()) {
+        const [spects, red, blue] = getPlayerListByTeam();
+        if ((red.length + blue.length) == 0) {
+            updateTeams();
+        }
+    }
+}
+
+room.onPlayerJoin = function(player) {
+    sendWelcomeMessage(player);
+    votekickCount[player.id] = []
+    if(!room.getScores() && (room.getPlayerList().length == 3)) {
+        updateTeams();
+        room.startGame();
+    } else if(room.getScores() && ((room.getPlayerList().length == 5) || (room.getPlayerList().length == 7))) {
+        room.stopGame();
+    }
+}
+
+room.onGameStart = function() {
+    initializeAfkCheck();
+    subbedIns = [];
+}
+
+room.onGameStop = function() {
+    players = room.getPlayerList();
+    for(i = 0; i < players.length; i++) {
+        clearTimeout(afkCheck[players[i].id]);
+    }
+    afkCheck = {};
+    if (!restart) {
+        resetTeams();
+    } else {
+        room.startGame();
+    }
+}
+
+
+room.onPlayerActivity = function(player) {
+    if(player.team != 0) {
+        clearTimeout(afkCheck[player.id]);
+        afkCheck[player.id] = setTimeout(kickInactivePlayer, afkTimeout, player);
+    }
+}
+
+room.onPlayerLeave = function(player) {
+    /*
+        delete players votes also.
+    */
+    delete votekickCount[player.id];
+    delete votekickTimes[player.id];
+    delete afkCheck[player.id];
+    if((player.team == 1 || player.team == 2) && room.getScores()){
+        const [spects, red, blue] = getPlayerListByTeam();
+        if(spects.length > 1){
+            room.setPlayerTeam(spects[1].id, player.team);
+            if(room.getScores().time < 30){
+                restart = true;
+                room.stopGame();
+                restart = false;
+            } else {
+                subbedIns.push(spects[1]);
+            }
+        } else {
+            room.stopGame();
+        }
+        if(room.getPlayerList().length == 1){
+            room.stopGame();
+        }
+    }
+}
+/*
+    3vs3 ws?
+*/
