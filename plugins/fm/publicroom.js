@@ -3,19 +3,6 @@
 let restart = false;
 let subbedIns = []; //players who got subbed in while game was running get prefered
 
-
-/*
-    filters each team from the playerlist.
-    TODO move to helper plugin
-*/
-function getPlayerListByTeam() {
-    const players = room.getPlayerList();
-    const spects = players.filter(p => p.team === 0);
-    const red = players.filter(p => p.team === 1);
-    const blue = players.filter(p => p.team === 2);
-    return [spects, red, blue];
-}
-
 /*
     sets the Teams for the next Game and starts the game.
 */
