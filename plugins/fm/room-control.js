@@ -9,7 +9,7 @@ room.pluginSpec = {
     version: `1.0.0`,
     dependencies: [
         `saviola/core`,
-        `fm/afk-monitor`,
+        //`fm/afk-monitor`,
         `fm/team-fill`,
     ],
 };
@@ -43,9 +43,12 @@ checkRoomState[States.LOADED] = () => {
 };
 
 checkRoomState[States.LOBBY] = () => {
+    HHM.log.toRoom(`Trying to fill teams…`);
+
     // Try to fill teams
     if (teamFiller.fillTeams()) {
         // if successful, start game and change state to GAME
+        HHM.log.toRoom(`Teams filled, game starting. Hf gl!`);
         room.startGame();
         state = States.GAME;
     }
@@ -62,6 +65,7 @@ checkRoomState[States.GAME] = () => {
 };
 
 checkRoomState[States.PAUSED] = () => {
+    HHM.log.toRoom(`Trying to re-fill teams… (${teamFillAttempts+1}/10)`);
 
     // paused means a player left or was kicked, so try to fill teams
     if (teamFiller.fillTeams()) {
@@ -73,7 +77,8 @@ checkRoomState[States.PAUSED] = () => {
     teamFillAttempts++;
 
     // if there are not enough players, go back to lobby after 10 attempts
-    if (teamFillAttempts > 10) {
+    if (teamFillAttempts >= 10) {
+        HHM.log.toRoom(`Giving up and returning to lobby, not enough players`);
         room.stopGame();
         state = States.LOBBY;
     }
@@ -81,11 +86,17 @@ checkRoomState[States.PAUSED] = () => {
 
 room.onLoad = () => {
   teamFiller = room.getPlugin(`fm/team-fill`);
-  afkMonitor = room.getPlugin(`fm/afk-monitor`);
+  //afkMonitor = room.getPlugin(`fm/afk-monitor`);
 };
 
 room.onGamePause = () => {
     state = States.PAUSED;
+};
+
+room.onPlayerLeave = (player) => {
+  if (player.team !== 0) {
+      room.pauseGame(true);
+  }
 };
 
 /**

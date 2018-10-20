@@ -3,43 +3,6 @@
 let restart = false;
 let subbedIns = []; //players who got subbed in while game was running get prefered
 
-/*
-    sets the Teams for the next Game and starts the game.
-*/
-function updateTeams() {
-    playerList = room.getPlayerList();
-    let playerNumber = playerList.length - 1;
-    playerList = playerList.filter(function (el) {
-        return (subbedIns.indexOf(el) < 0);
-    });
-    if (playerNumber >= 6) {
-        playerNumber = 6;
-        room.setDefaultStadium("Big"); //big if 3vs3 is possible
-    } else {
-        room.setDefaultStadium("Classic"); //classic if not
-        if (playerNumber % 2) {
-            playerNumber--; //creates even number of players to be distributed on both teams
-        }
-    }
-    for (i = 0; i < subbedIns.length; i++) {
-        if (i <= (playerNumber / 2)) {
-            room.setPlayerTeam(subbedIns[i].id, 1); //prefers players who got subbed in the match before.
-        } else {
-            room.setPlayerTeam(subbedIns[i].id, 2);
-        }
-    }
-    for (i = 1; i < playerNumber + 1 - subbedIns.length; i++) {
-        if (i <= ((playerNumber / 2) - subbedIns.length)) {
-            room.setPlayerTeam(playerList[i].id, 1); //puts first half of players in red team, second in blue team
-        } else {
-            room.setPlayerTeam(playerList[i].id, 2);
-        }
-    }
-    if (playerNumber > 1) {
-        room.startGame();
-    }
-}
-
 function sendWelcomeMessage(player) {
     room.sendChat("Welcome " + player.name + "! FeedMe Discord: https://discord.gg/32MyWPP. Type \"votekick playername\" if someone doesn't behave.", player.id);
 }
