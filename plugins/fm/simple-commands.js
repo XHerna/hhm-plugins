@@ -23,19 +23,19 @@ let autoSwap = false;
 let gameEndedPeacefully = false;
 
 room.onCommand_swap = (player) => {
-    if (room.getPlayer(player).admin) {
+    if (player.admin) {
         swapTeams();
     }
 };
 
 room.onCommand_autoswap_on = (player) => {
-    if (room.getPlayer(player).admin) {
+    if (player.admin) {
         autoSwap = true;
     }
 };
 
 room.onCommand_autoswap_off = (player) => {
-    if (room.getPlayer(player).admin) {
+    if (player.admin) {
         autoSwap = false;
     }
 };
@@ -67,7 +67,7 @@ room.onGameStop = () => {
 };
 
 room.onCommand_rr = (player) => {
-    if (room.getPlayer(player).admin) {
+    if (player.admin) {
         restartGame();
     }
 };
@@ -84,7 +84,7 @@ room.onPlayerChat = (player, message) => {
 };
 
 room.onCommand_p = (player) => {
-    if (room.getPlayer(player).admin) {
+    if (player.admin) {
         room.pauseGame(false);
     }
 };

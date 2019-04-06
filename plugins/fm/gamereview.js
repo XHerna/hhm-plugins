@@ -67,11 +67,11 @@ function createReview() {
     xhttp.send(data);
 }
 
-room.onCommand_ts = (id, argument, argumentString) => {
+room.onCommand_ts = (player, argument, argumentString) => {
     if (!room.getScores()) return;
     let timestamp = {
         'time': (((new Date().getTime()) - timestart) / 1000),
-        'by': room.getPlayer(id).name,
+        'by': player.name,
         'label': argumentString,
     };
     timestamps.push(timestamp);
