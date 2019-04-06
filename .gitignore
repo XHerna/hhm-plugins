@@ -1,5 +1,9 @@
 remote
+remote/
 remote_stable
+
+config
+config/
 
 .idea/
 .gitignore

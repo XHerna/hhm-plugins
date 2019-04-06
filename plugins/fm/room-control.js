@@ -8,9 +8,9 @@ room.pluginSpec = {
     author: `fm`,
     version: `1.0.0`,
     dependencies: [
-        `saviola/core`,
+        `sav/core`,
         //`fm/afk-monitor`,
-        `fm/team-fill`,
+        `fm/team-manager`,
     ],
 };
 
@@ -23,8 +23,8 @@ const States = {
 
 let state = States.LOADED;
 
-// Plugins for team filling and afk monitoring, will be set in onLoad
-let teamFiller, afkMonitor;
+// Plugins for team filling and afk monitoring, will be set in onRoomLink
+let teamManager, afkMonitor, roles;
 
 // Keeps track of how many attempts have been made to fill the teams
 let teamFillAttempts = 0;
@@ -43,12 +43,12 @@ checkRoomState[States.LOADED] = () => {
 };
 
 checkRoomState[States.LOBBY] = () => {
-    HHM.log.toRoom(`Trying to fill teams…`);
+    room.log(`Trying to fill teams…`);
 
     // Try to fill teams
-    if (teamFiller.fillTeams()) {
+    if (teamManager.fillTeams()) {
         // if successful, start game and change state to GAME
-        HHM.log.toRoom(`Teams filled, game starting. Hf gl!`);
+        room.log(`Teams filled, game starting. Hf gl!`);
         room.startGame();
         state = States.GAME;
     }
@@ -65,10 +65,12 @@ checkRoomState[States.GAME] = () => {
 };
 
 checkRoomState[States.PAUSED] = () => {
-    HHM.log.toRoom(`Trying to re-fill teams… (${teamFillAttempts+1}/10)`);
+    room.log(`Trying to re-fill teams… (${teamFillAttempts+1}/10)`);
 
     // paused means a player left or was kicked, so try to fill teams
-    if (teamFiller.fillTeams()) {
+    // restart game when player leaves in first seconds?
+    // dont fill when team is losing and player leaves in last seconds (or after last goal)?
+    if (teamManager.fillTeams()) {
         room.pauseGame(false);
         state = States.GAME;
     }
@@ -78,15 +80,17 @@ checkRoomState[States.PAUSED] = () => {
 
     // if there are not enough players, go back to lobby after 10 attempts
     if (teamFillAttempts >= 10) {
-        HHM.log.toRoom(`Giving up and returning to lobby, not enough players`);
+        room.log(`Giving up and returning to lobby, not enough players`);
         room.stopGame();
         state = States.LOBBY;
     }
 };
 
-room.onLoad = () => {
-  teamFiller = room.getPlugin(`fm/team-fill`);
-  //afkMonitor = room.getPlugin(`fm/afk-monitor`);
+room.onRoomLink = () => {
+
+    roles = room.getPlugin(`sav/roles`);
+    teamManager = room.getPlugin(`fm/team-manager`);
+    //afkMonitor = room.getPlugin(`fm/afk-monitor`);
 };
 
 room.onGamePause = () => {
@@ -97,6 +101,11 @@ room.onPlayerLeave = (player) => {
   if (player.team !== 0) {
       room.pauseGame(true);
   }
+};
+
+room.onGameStop = () => {
+    teamManager.resetTeams();
+    state = States.LOBBY;
 };
 
 /**

@@ -1,5 +1,5 @@
 HHM = typeof HHM === `undefined` ? {} : HHM;
-HHM.baseUrl = HHM.baseUrl || `https://haxplugins.tk/testing/`;
+HHM.baseUrl = HHM.baseUrl || `https://haxplugins.tk/`;
 HHM.config = HHM.config || {};
 
 /**
@@ -20,30 +20,38 @@ HHM.config.postInit = HBInit => {
     let room = HBInit();
 
     room.setDefaultStadium("Big");
-    room.setScoreLimit(3);
+    room.setScoreLimit(1);
     room.setTimeLimit(3);
     room.setTeamsLock(true);
 };
 
 HHM.config.plugins = {
-    'saviola/commands': {
+    'sav/commands': {
         commandPrefix: `!`,
     },
-    'saviola/roles': {
+    'sav/roles': {
         roles: {
-            'host': `gandalf`,
-            'admin': `gandalf`,
+            user: ``,
+            captain: ``,
         },
+        defaultRole: `user`,
     },
-    'saviola/core': {},
-    'saviola/plugin-control': {},
+    'sav/core': {},
+    'sav/plugin-control': {},
     'fm/room-control': {},
+    'fm/team-manager': {
+        fillStrategy: `captains`,
+        resetStrategy: `ws`,
+    },
 };
 
 HHM.config.repositories = [
-    {
-        url: `${HHM.baseUrl}plugins/`,
-    },
+  {
+    url: `${HHM.baseUrl}plugins/hhm-plugins/`,
+  },
+  {
+    url: `${HHM.baseUrl}testing/plugins/fm-publicbot/`,
+  },
 ];
 
 HHM.config.dryRun = false;
