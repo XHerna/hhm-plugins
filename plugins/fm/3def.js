@@ -228,7 +228,9 @@ function playerInDefZone(player) {
  * warns Players about 3def-violations.
  */
 function saveViolation() {
-    violations.push((new Date().getTime() - timestart) / 1000);
+    time = (new Date().getTime() - timestart) / 1000
+    violations.push(time);
+    lastviolation = time;
 }
 
 /**
@@ -286,7 +288,7 @@ room.onPlayerChat = (player, ms) => {
     if (ms === "3" || ms === "4" || ms === "3def" || ms === "4def") {
         if (lastviolation !== null) {
             currentTime = (new Date().getTime() - timestart) / 1000;
-            if ((currentTime - 8) < lastviolation) {
+            if ((currentTime - 5) < lastviolation) {
                 room.sendChat("I can confirm that there was a 3def-violation!");
             } else {
                 room.sendChat("@" + player.name + ", you should read the 3-def-rules again: https://i.imgur.com/h8VZA6d.png");
