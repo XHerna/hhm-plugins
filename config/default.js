@@ -9,8 +9,8 @@ HHM.config = HHM.config || {};
  * room instance to start the plugin system.
  */
 HHM.config.room = {
-    roomName: "FeedMe 3vs3 everyone welcome",
-    maxPlayers: 9,
+    roomName: "fm-haxball.co.uk | 4vs4 3def",
+    maxPlayers: 12,
     playerName : ">}(o__o){<",
     public : false, // change to true for production use
     geo: {"code": "eu", "lat": 52.5192, "lon": 13.4061}
@@ -20,8 +20,8 @@ HHM.config.postInit = HBInit => {
     let room = HBInit();
 
     room.setDefaultStadium("Big");
-    room.setScoreLimit(1);
-    room.setTimeLimit(3);
+    room.setScoreLimit(0);
+    room.setTimeLimit(4);
     room.setTeamsLock(true);
 };
 
@@ -32,16 +32,15 @@ HHM.config.plugins = {
     'sav/roles': {
         roles: {
             user: ``,
-            captain: ``,
+            admin: `hungryhax`,
+            host: `frodo`,
         },
         defaultRole: `user`,
     },
     'sav/core': {},
     'sav/plugin-control': {},
-    'fm/room-control': {},
-    'fm/team-manager': {
-        fillStrategy: `captains`,
-        resetStrategy: `ws`,
+    'fm/roompass': {
+        password: `hungryhax`,
     },
 };
 
