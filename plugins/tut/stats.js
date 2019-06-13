@@ -4,8 +4,8 @@
 const room = HBInit();
 
 room.pluginSpec = {
-    name: `fm/stats`,
-    author: `fm`,
+    name: `tut/stats`,
+    author: `Herna`,
     version: `1.0.0`,
     dependencies: [
         `sav/core`,
@@ -23,6 +23,10 @@ let distributionBall = {
 };
 
 let possession = {};
+let possessionPerTeam = {
+        1: 0,
+        2: 0,
+}
 let passes = {};
 let pass = null;
 let possBuffer = 0;
@@ -46,6 +50,10 @@ room.onGameStart = () => {
     gameRunning = false;
     possBuffer = 0;
     possession = {};
+    possessionPerTeam = {
+        "Red": 0,
+        "Blue": 0,
+    }
     for (let area in distributionBall) {
         distributionBall[area] = 0;
     }
@@ -148,6 +156,7 @@ function updatePossession() {
 }
 
 function addPossession(playerId) {
+    possessionPerTeam[getPlayer(playerId).team] += possBuffer;
     if (possession[playerId] === undefined) {
         possession[playerId] = possBuffer;
     } else {
@@ -259,16 +268,8 @@ room.outputPassesPerPlayer = () => {
 }
 
 room.outputPossessionPerTeam = () => {
-    let possessionPerTeam = {
-        "Red": 0,
-        "Blue": 0,
-    }
-    for (let playerId in possession) {
-        if (room.getPlayer(playerId).team === 1) possessionPerTeam["Red"] += possession[playerId];
-        if (room.getPlayer(playerId).team === 2) possessionPerTeam["Blue"] += possession[playerId];
-    }
     let possPerc = calculatePercentage(possessionPerTeam);
-    return ("Possession: " + possPerc.Red + "% | " + possPerc.Blue + "%");
+    return ("Possession: " + possPerc[1] + "% | " + possPerc[2] + "%");
 };
 
 /**

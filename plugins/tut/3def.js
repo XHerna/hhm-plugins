@@ -2,6 +2,8 @@
  * Plugin that tries to calculate violations of the
  * 3def-rule (as described in the FM-rules) and
  * warns the players about it.
+ * room.get3defViolations() return the violations of the last game.
+ *
  */
 const room = HBInit();
 

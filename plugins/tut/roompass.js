@@ -11,12 +11,10 @@ room.pluginSpec = {
     dependencies: [
         `sav/core`,
     ],
-    config: {
-        password: null,
-    }
 };
 
 let roles;
+let password;
 
 room.onPlayerJoin = (player) => {
     players = room.getPlayerList();
@@ -35,4 +33,9 @@ room.onPlayerLeave = () => {
 
 room.onRoomLink = () => {
     roles = room.getPlugin(`sav/roles`);
+    if (room.password === null) {
+        password = roles.getConfig().roles.admin;
+        room.setPassword(password);
+
+    }
 };
