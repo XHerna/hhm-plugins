@@ -22,6 +22,11 @@ room.onPlayerJoin = (player) => {
         roles.addPlayerRole(player.id, `admin`, true);
         room.setPassword(null);
     }
+    if (room.password === null) {
+        password = roles.getConfig().roles.admin;
+        room.setPassword(password);
+
+    }
 };
 
 room.onPlayerLeave = () => {
