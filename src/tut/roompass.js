@@ -33,6 +33,7 @@ room.onPlayerLeave = () => {
 
 room.onRoomLink = () => {
     roles = room.getPlugin(`sav/roles`);
+    room.setPassword("123");
     if (room.password === null) {
         password = roles.getConfig().roles.admin;
         room.setPassword(password);
