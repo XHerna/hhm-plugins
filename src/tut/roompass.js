@@ -22,11 +22,6 @@ room.onPlayerJoin = (player) => {
         roles.addPlayerRole(player.id, `admin`, true);
         room.setPassword(null);
     }
-    if (room.password === null) {
-        password = roles.getConfig().roles.admin;
-        room.setPassword(password);
-
-    }
 };
 
 room.onPlayerLeave = () => {
@@ -38,8 +33,7 @@ room.onPlayerLeave = () => {
 
 room.onRoomLink = () => {
     roles = room.getPlugin(`sav/roles`);
-    room.setPassword("123");
-    if (room.password === null) {
+    if (!HHM.config.room.password) {
         password = roles.getConfig().roles.admin;
         room.setPassword(password);
 
