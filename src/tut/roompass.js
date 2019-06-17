@@ -5,8 +5,8 @@
 const room = HBInit();
 
 room.pluginSpec = {
-    name: `fm/roompass`,
-    author: `fm`,
+    name: `tut/roompass`,
+    author: `Herna`,
     version: `1.0.0`,
     dependencies: [
         `sav/core`,
@@ -33,7 +33,7 @@ room.onPlayerLeave = () => {
 
 room.onRoomLink = () => {
     roles = room.getPlugin(`sav/roles`);
-    if (room.password === null) {
+    if (!HHM.config.room.password) {
         password = roles.getConfig().roles.admin;
         room.setPassword(password);
 
