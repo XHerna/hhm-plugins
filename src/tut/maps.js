@@ -47,8 +47,8 @@ const DEFAULT_MAPS = ['Classic', 'Easy', 'Small', 'Big', 'Rounded', 'Hockey',
  'Big Hockey', 'Big Easy', 'Big Rounded', 'Huge',
 ];
 
-room.onCommand_maps = (id) => {
-  displayMaps(id);
+room.onCommand_maps = (player) => {
+  displayMaps(player.id);
 };
 
 room.onCommand_setmap = (id, argument, argumentString) => {
