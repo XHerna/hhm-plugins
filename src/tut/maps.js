@@ -31,40 +31,43 @@
 const room = HBInit();
 
 room.pluginSpec = {
-    name: `fm/maps`,
-    author: `fm`,
-    version: `1.0.0`,
-    dependencies: [
-        `sav/core`,
-    ],
-    config:  {
-        maps: {},
-    }
+  name: `tut/maps`,
+  author: `Herna`,
+  version: `1.0.0`,
+  dependencies: [
+    `sav/core`,
+  ],
+  config:  {
+    maps: {},
+  },
 };
 
 const maps = room.getConfig().maps;
 
-const default_maps = ["Classic", "Easy", "Small", "Big", "Rounded", "Hockey", "Big Hockey", "Big Easy", "Big Rounded", "Huge"]
+const DEFAULT_MAPS = ['Classic', 'Easy', 'Small', 'Big', 'Rounded', 'Hockey',
+ 'Big Hockey', 'Big Easy', 'Big Rounded', 'Huge',
+];
 
 room.onCommand_maps = (id) => {
-    displayMaps(id);
+  displayMaps(id);
 };
 
 room.onCommand_setmap = (id, argument, argumentString) => {
-    if (default_maps.includes(argumentString)) {
-        room.setDefaultStadium(argumentString);
-    } else if (Object.keys(maps).includes(argumentString)) {
-        room.setCustomStadium(maps[argumentString]);
-    } else {
-        room.sendChat("Map not found.", id);
-    }
+  if (DEFAULT_MAPS.includes(argumentString)) {
+    room.setDefaultStadium(argumentString);
+  } else if (Object.keys(maps).includes(argumentString)) {
+    room.setCustomStadium(maps[argumentString]);
+  } else {
+    room.sendChat('Map not found.', id);
+  }
 };
 
 function displayMaps(id) {
-    let output = "Maps:"
-    for (let key in maps) {
-        output = output + " " + key + ","
-    }
-    output = output.slice(0, -1);
-    room.sendChat(output, id);
+  let output = 'Maps:';
+  for (let key in maps) {
+    output = output + ' ' + key + ',';
+  }
+
+  output = output.slice(0, -1);
+  room.sendChat(output, id);
 }
