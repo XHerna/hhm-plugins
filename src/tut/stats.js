@@ -160,7 +160,7 @@ function updatePossession() {
 }
 
 function addPossession(playerId) {
-  possessionPerTeam[getPlayer(playerId).team] += possBuffer;
+  possessionPerTeam[room.getPlayer(playerId).team] += possBuffer;
   if (possession[playerId] === undefined) {
     possession[playerId] = possBuffer;
   } else {
