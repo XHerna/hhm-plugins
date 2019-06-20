@@ -20,6 +20,10 @@ room.pluginSpec = {
 let autoSwap = false;
 let gameEndedPeacefully = false;
 
+room.onCommand_bb = (player) => {
+  room.kickPlayer(player.id, 'Good Bye!', false);
+};
+
 room.onCommand_swap = (player) => {
   if (player.admin) {
     swapTeams();
