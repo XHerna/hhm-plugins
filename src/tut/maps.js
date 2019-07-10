@@ -38,7 +38,7 @@ room.pluginSpec = {
   ],
   config:  {
     maps: {},
-    defaultMap: 'Classic',
+    defaultMap: null,
   },
 };
 
@@ -82,5 +82,10 @@ function displayMaps(id) {
 
 room.onRoomLink = () => {
   maps = room.getConfig().maps;
+  if (!HHM.config.room.password) {
+    password = roles.getConfig().roles.admin;
+    room.setPassword(password);
+  }
+  
   setMap(room.getConfig('defaultMap'));
 };
