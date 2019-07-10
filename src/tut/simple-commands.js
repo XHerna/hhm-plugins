@@ -24,6 +24,12 @@ room.onCommand_bb = (player) => {
   room.kickPlayer(player.id, 'Good Bye!', false);
 };
 
+room.onCommand_clearBans = (player) => {
+  if (player.admin) {
+    room.clearBans();
+  }
+};
+
 room.onCommand_swap = (player) => {
   if (player.admin) {
     swapTeams();

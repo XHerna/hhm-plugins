@@ -104,7 +104,7 @@ function calculateRightLine() {
   const tmfp = thirdMostForwardPlayer(1);
   const thirdMostForwardPlayerLine = tmfp.position.x - PLAYER_RADIUS;
 
-  if (thirdMostForwardPlayerLine > newDzone) {
+  if (thirdMostForwardPlayerLine > newDefzone) {
     newDefzone = thirdMostForwardPlayerLine;
   }
 

@@ -38,6 +38,7 @@ room.pluginSpec = {
   ],
   config:  {
     maps: {},
+    defaultMap: null,
   },
 };
 
@@ -52,14 +53,22 @@ room.onCommand_maps = (player) => {
 };
 
 room.onCommand_setmap = (id, argument, argumentString) => {
-  if (DEFAULT_MAPS.includes(argumentString)) {
-    room.setDefaultStadium(argumentString);
-  } else if (Object.keys(maps).includes(argumentString)) {
-    room.setCustomStadium(maps[argumentString]);
-  } else {
+  if (!setMap(argumentString)) {
     room.sendChat('Map not found.', id);
   }
 };
+
+function setMap(mapName) {
+  if (DEFAULT_MAPS.includes(mapName)) {
+    room.setDefaultStadium(mapName);
+    return true;
+  } else if (Object.keys(maps).includes(mapName)) {
+    room.setCustomStadium(maps[mapName]);
+    return true;
+  } else {
+    return false;
+  }
+}
 
 function displayMaps(id) {
   let output = 'Maps:';
@@ -73,4 +82,10 @@ function displayMaps(id) {
 
 room.onRoomLink = () => {
   maps = room.getConfig().maps;
+  if (!HHM.config.room.password) {
+    password = roles.getConfig().roles.admin;
+    room.setPassword(password);
+  }
+  
+  setMap(room.getConfig('defaultMap'));
 };
