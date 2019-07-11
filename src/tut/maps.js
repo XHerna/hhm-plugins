@@ -59,6 +59,7 @@ room.onCommand_setmap = (id, argument, argumentString) => {
 };
 
 function setMap(mapName) {
+  maps = room.getConfig().maps;
   if (DEFAULT_MAPS.includes(mapName)) {
     room.setDefaultStadium(mapName);
     return true;
@@ -71,6 +72,7 @@ function setMap(mapName) {
 }
 
 function displayMaps(id) {
+  maps = room.getConfig().maps;
   let output = 'Maps:';
   for (let key in maps) {
     output = output + ' ' + key + ',';
@@ -86,6 +88,6 @@ room.onRoomLink = () => {
     password = roles.getConfig().roles.admin;
     room.setPassword(password);
   }
-  
+
   setMap(room.getConfig('defaultMap'));
 };
