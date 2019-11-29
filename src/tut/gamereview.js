@@ -31,21 +31,6 @@ function createReview() {
   };
 
   data = {};
-  data.rec = room.stopRecording();
-
-  let violations = threeDef.get3defViolations();
-  for (let violation of violations) {
-    let timestamp = {
-      time: violation,
-      by: 'Host',
-      label: '3def',
-    };
-    timestamps.push(timestamp);
-  }
-
-  data.ts = timestamps.sort(function (v1, v2) {
-    return v1.time - v2.time;
-  });
 
   data.goals = stats.getGoals();
   data.distr = stats.outputDistribution();
@@ -53,18 +38,11 @@ function createReview() {
   data.possPl = stats.outputPossessionPerPlayer();
   data.passes = stats.outputPassesPerPlayer();
 
-  let xhttp = new XMLHttpRequest();
-  let url = room.getConfig().url;
-  xhttp.open('POST', url, true);
-  xhttp.setRequestHeader('Content-Type', 'application/json');
-  xhttp.onreadystatechange = function () {
-    if (xhttp.readyState === 4 && xhttp.status === 200) {
-      console.log(xhttp.response);
-    }
-  };
-
-  data = JSON.stringify(data);
-  xhttp.send(data);
+  room.sendAnnouncement(data.goals);
+  room.sendAnnouncement(data.distr);
+  room.sendAnnouncement(data.poss);
+  room.sendAnnouncement(data.possPl);
+  room.sendAnnouncement(data.passes);
 }
 
 room.onCommand_ts = (player, argument, argumentString) => {
@@ -92,9 +70,6 @@ room.onPlayerChat = (player, message) => {
 
 room.onGameStart = () => {
   gameEnded = false;
-  timestamps = [];
-  room.startRecording();
-  timestart = new Date().getTime();
 };
 
 room.onGameStop = () => {
@@ -107,12 +82,6 @@ function outputGoals() {
     room.sendChat(goal);
   }
 }
-
-room.onGameTick = () => {
-  if (room.getScores().time >= room.getScores().timeLimit) {
-    createReview();
-  }
-};
 
 room.onRoomLink = () => {
 
